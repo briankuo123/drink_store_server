@@ -1,0 +1,27 @@
+entity Menu {
+    drinkId UUID unique required,
+
+    drinkName String unique required maxlength(50),
+    //是否提供甜度選擇
+    sugar Boolean required,
+    //是否提供冰塊選擇
+    ice Boolean required,
+    //是否提供熱飲
+    hot Boolean required
+    //還需要研究，預計用json obj寫入
+    toppings String,
+    //是否提供大小選擇
+    drinkSize Boolean required,
+
+    drinkPrice Integer required,
+    //還需要研究
+    drinkPictureURL String,
+
+    CreateBy String maxlength(50),
+
+    CreateDatetime Instant,
+
+    lastModifiedBy String maxlength(50),
+
+    lastModifiedDatetime Instant
+}

@@ -17,6 +17,9 @@
 ---
 # Conditionally disable springdoc on missing api-docs profile
 spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   config:
     activate:
       on-profile: '!api-docs'

@@ -1,0 +1,25 @@
+entity Order {
+    orderId UUID unique required,
+
+    userId UUID required
+
+    payMethod String,
+
+    deliveryLocation String,
+
+    totalPrice Integer,
+
+    deliveryTime Instant,
+
+    orderStatus String,
+
+    coupon String,
+
+    CreateBy String maxlength(50),
+
+    CreateDatetime Instant,
+
+    lastModifiedBy String maxlength(50),
+
+    lastModifiedDatetime Instant
+}

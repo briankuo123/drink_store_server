@@ -1,0 +1,6 @@
+entity OrderRule {
+    //接訂單開關
+    orderStatus Boolean required,
+    //接訂單頻率，目前預設每20分鐘
+    orderFrequency Integer required,
+}

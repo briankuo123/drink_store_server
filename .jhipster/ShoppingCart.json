@@ -1,0 +1,42 @@
+{
+  "applications": "*",
+  "changelogDate": "20231025055847",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "shopping_cart",
+  "fields": [
+    {
+      "fieldName": "userId",
+      "fieldType": "UUID",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "drinkId",
+      "fieldType": "UUID",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "sugar",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "ice",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "toppings",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "drinkSize",
+      "fieldType": "String"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "ShoppingCart",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [],
+  "service": "no"
+}

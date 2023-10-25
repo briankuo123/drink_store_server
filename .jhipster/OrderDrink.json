@@ -1,0 +1,46 @@
+{
+  "applications": "*",
+  "changelogDate": "20231025055753",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "order_drink",
+  "fields": [
+    {
+      "fieldName": "orderId",
+      "fieldType": "UUID",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "drinkId",
+      "fieldType": "UUID",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "sugar",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "ice",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "toppings",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "drinkSize",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "drinkPrice",
+      "fieldType": "Integer"
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "OrderDrink",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [],
+  "service": "no"
+}

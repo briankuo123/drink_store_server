@@ -1,0 +1,15 @@
+entity OrderDrink {
+    orderId UUID required,
+
+    drinkId UUID required,
+
+    sugar String,
+    //0為去冰，-1為熱
+    ice String,
+    //還需要研究，預計用json obj寫入
+    toppings String,
+
+    drinkSize String,
+
+    drinkPrice Integer
+}

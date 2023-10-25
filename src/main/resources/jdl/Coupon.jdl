@@ -1,0 +1,19 @@
+entity Coupon {
+    couponId UUID unique required,
+
+    couponCode String unique required,
+
+    couponValue Integer required,
+
+    couponUseTimes Integer,
+
+    couponExpireDatetime Instant,
+
+    CreateBy String maxlength(50),
+
+    CreateDatetime Instant,
+
+    lastModifiedBy String maxlength(50),
+
+    lastModifiedDatetime Instant
+}

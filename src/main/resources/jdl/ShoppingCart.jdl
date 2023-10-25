@@ -1,0 +1,13 @@
+entity ShoppingCart {
+    userId UUID required,
+
+    drinkId UUID required,
+
+    sugar String,
+    //0為去冰，-1為熱
+    ice String,
+    //還需要研究
+    toppings String,
+
+    drinkSize String
+}

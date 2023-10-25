@@ -1,0 +1,17 @@
+entity UserInfo {
+    userId UUID unique required,
+
+    userName String required maxlength(50),
+    //用email和原生jhi table接起來
+    email String unique required maxlength(255),
+
+    phoneNumber String unique required,
+
+    createBy String required maxlength(50),
+
+    createDatetime Instant,
+
+    lastModifiedBy String maxlength(50),
+
+    lastModifiedDatetime Instant
+}

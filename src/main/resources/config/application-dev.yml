@@ -33,8 +33,8 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:postgresql://localhost:5432/drink_store_server
-    username: drink_store_server
-    password:
+    username: postgres
+    password: 111111
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -54,7 +54,7 @@ spring:
     cache: false
 
 server:
-  port: 8080
+  port: 8888
 
 # ===================================================================
 # JHipster specific properties

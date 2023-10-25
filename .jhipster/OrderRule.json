@@ -1,0 +1,26 @@
+{
+  "applications": "*",
+  "changelogDate": "20231025055814",
+  "dto": "no",
+  "embedded": false,
+  "entityTableName": "order_rule",
+  "fields": [
+    {
+      "fieldName": "orderStatus",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "orderFrequency",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "fluentMethods": true,
+  "jpaMetamodelFiltering": false,
+  "name": "OrderRule",
+  "pagination": "no",
+  "readOnly": false,
+  "relationships": [],
+  "service": "no"
+}
