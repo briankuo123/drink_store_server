@@ -24,7 +24,7 @@
                 <constraints nullable="false" unique="true" uniqueConstraintName="ux_user_info__email" />
             </column>
             <column name="phone_number" type="varchar(255)">
-                <constraints nullable="false" unique="true" uniqueConstraintName="ux_user_info__phone_number" />
+                <constraints nullable="false" />
             </column>
             <column name="create_by" type="varchar(50)">
                 <constraints nullable="false" />

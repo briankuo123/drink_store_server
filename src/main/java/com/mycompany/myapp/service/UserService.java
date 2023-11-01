@@ -3,11 +3,14 @@ package com.mycompany.myapp.service;
 import com.mycompany.myapp.config.Constants;
 import com.mycompany.myapp.domain.Authority;
 import com.mycompany.myapp.domain.User;
+import com.mycompany.myapp.domain.UserInfo;
 import com.mycompany.myapp.repository.AuthorityRepository;
+import com.mycompany.myapp.repository.UserInfoRepository;
 import com.mycompany.myapp.repository.UserRepository;
 import com.mycompany.myapp.security.AuthoritiesConstants;
 import com.mycompany.myapp.security.SecurityUtils;
 import com.mycompany.myapp.service.dto.AdminUserDTO;
+import com.mycompany.myapp.service.dto.RegisterUserDTO;
 import com.mycompany.myapp.service.dto.UserDTO;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -41,16 +44,20 @@ public class UserService {
 
     private final CacheManager cacheManager;
 
+    private final UserInfoRepository userInfoRepository;
+
     public UserService(
         UserRepository userRepository,
         PasswordEncoder passwordEncoder,
         AuthorityRepository authorityRepository,
-        CacheManager cacheManager
+        CacheManager cacheManager,
+        UserInfoRepository userInfoRepository
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
+        this.userInfoRepository = userInfoRepository;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -93,9 +100,9 @@ public class UserService {
             });
     }
 
-    public User registerUser(AdminUserDTO userDTO, String password) {
+    public User registerUser(RegisterUserDTO registerUserDTO, String password) {
         userRepository
-            .findOneByLogin(userDTO.getLogin().toLowerCase())
+            .findOneByLogin(registerUserDTO.getLogin().toLowerCase())
             .ifPresent(existingUser -> {
                 boolean removed = removeNonActivatedUser(existingUser);
                 if (!removed) {
@@ -103,7 +110,7 @@ public class UserService {
                 }
             });
         userRepository
-            .findOneByEmailIgnoreCase(userDTO.getEmail())
+            .findOneByEmailIgnoreCase(registerUserDTO.getEmail())
             .ifPresent(existingUser -> {
                 boolean removed = removeNonActivatedUser(existingUser);
                 if (!removed) {
@@ -112,18 +119,17 @@ public class UserService {
             });
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
-        newUser.setLogin(userDTO.getLogin().toLowerCase());
+        newUser.setLogin(registerUserDTO.getLogin().toLowerCase());
         // new user gets initially a generated password
         newUser.setPassword(encryptedPassword);
-        newUser.setFirstName(userDTO.getFirstName());
-        newUser.setLastName(userDTO.getLastName());
-        if (userDTO.getEmail() != null) {
-            newUser.setEmail(userDTO.getEmail().toLowerCase());
+        newUser.setFirstName(registerUserDTO.getName());
+        newUser.setLastName(registerUserDTO.getName());
+        if (registerUserDTO.getEmail() != null) {
+            newUser.setEmail(registerUserDTO.getEmail().toLowerCase());
         }
-        newUser.setImageUrl(userDTO.getImageUrl());
-        newUser.setLangKey(userDTO.getLangKey());
+        newUser.setLangKey("zh-tw");
         // new user is not active
-        newUser.setActivated(false);
+        newUser.setActivated(true);
         // new user gets registration key
         newUser.setActivationKey(RandomUtil.generateActivationKey());
         Set<Authority> authorities = new HashSet<>();
@@ -132,6 +138,21 @@ public class UserService {
         userRepository.save(newUser);
         this.clearUserCaches(newUser);
         log.debug("Created Information for User: {}", newUser);
+
+        //userInfoTable
+        UserInfo userInfo = new UserInfo();
+        UUID newId = UUID.randomUUID();
+        Instant instantNow = Instant.now();
+        userInfo.setUserId(newId);
+        userInfo.setUserName(registerUserDTO.getName());
+        userInfo.setEmail(registerUserDTO.getEmail());
+        userInfo.setPhoneNumber(registerUserDTO.getPhoneNumber());
+        userInfo.setCreateBy(registerUserDTO.getName());
+        userInfo.setCreateDatetime(instantNow);
+        userInfo.setLastModifiedBy(registerUserDTO.getName());
+        userInfo.setLastModifiedDatetime(instantNow);
+        userInfoRepository.save(userInfo);
+
         return newUser;
     }
 

@@ -40,7 +40,7 @@ public class UserInfo implements Serializable {
     private String email;
 
     @NotNull
-    @Column(name = "phone_number", nullable = false, unique = true)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @NotNull

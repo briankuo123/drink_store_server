@@ -7,6 +7,7 @@ import com.mycompany.myapp.service.MailService;
 import com.mycompany.myapp.service.UserService;
 import com.mycompany.myapp.service.dto.AdminUserDTO;
 import com.mycompany.myapp.service.dto.PasswordChangeDTO;
+import com.mycompany.myapp.service.dto.RegisterUserDTO;
 import com.mycompany.myapp.web.rest.errors.*;
 import com.mycompany.myapp.web.rest.vm.KeyAndPasswordVM;
 import com.mycompany.myapp.web.rest.vm.ManagedUserVM;
@@ -57,12 +58,12 @@ public class AccountResource {
      */
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void registerAccount(@Valid @RequestBody ManagedUserVM managedUserVM) {
-        if (isPasswordLengthInvalid(managedUserVM.getPassword())) {
+    public void registerAccount(@Valid @RequestBody RegisterUserDTO registerUserDTO) {
+        if (isPasswordLengthInvalid(registerUserDTO.getPassword())) {
             throw new InvalidPasswordException();
         }
-        User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
-        mailService.sendActivationEmail(user);
+        User user = userService.registerUser(registerUserDTO, registerUserDTO.getPassword());
+        //        mailService.sendActivationEmail(user);
     }
 
     /**

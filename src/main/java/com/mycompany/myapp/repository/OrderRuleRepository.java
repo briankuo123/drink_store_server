@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface OrderRuleRepository extends JpaRepository<OrderRule, Long> {}
+public interface OrderRuleRepository extends JpaRepository<OrderRule, Long> {
+    public OrderRule getOrderRuleById(Long id);
+}

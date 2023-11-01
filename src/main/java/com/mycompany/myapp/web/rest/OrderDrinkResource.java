@@ -1,18 +1,19 @@
 package com.mycompany.myapp.web.rest;
 
+import com.mycompany.myapp.domain.Order;
 import com.mycompany.myapp.domain.OrderDrink;
 import com.mycompany.myapp.repository.OrderDrinkRepository;
+import com.mycompany.myapp.repository.OrderRepository;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -36,8 +37,11 @@ public class OrderDrinkResource {
 
     private final OrderDrinkRepository orderDrinkRepository;
 
-    public OrderDrinkResource(OrderDrinkRepository orderDrinkRepository) {
+    private final OrderRepository orderRepository;
+
+    public OrderDrinkResource(OrderDrinkRepository orderDrinkRepository, OrderRepository orderRepository) {
         this.orderDrinkRepository = orderDrinkRepository;
+        this.orderRepository = orderRepository;
     }
 
     /**
@@ -195,5 +199,18 @@ public class OrderDrinkResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    //get all orders by userId
+    @GetMapping("/userOrders/{userId}")
+    public ResponseEntity getUserOrders(@PathVariable UUID userId) {
+        List<OrderDrink> response = new ArrayList<>();
+        List<Order> orders = orderRepository.findByUserId(userId);
+        for (Order o : orders) {
+            for (OrderDrink od : orderDrinkRepository.getOrderDrinkByDrinkId(o.getOrderId())) {
+                response.add(od);
+            }
+        }
+        return new ResponseEntity(response, HttpStatus.OK);
     }
 }

@@ -5,7 +5,7 @@ entity UserInfo {
     //用email和原生jhi table接起來
     email String unique required maxlength(255),
 
-    phoneNumber String unique required,
+    phoneNumber String required,
 
     createBy String required maxlength(50),
 

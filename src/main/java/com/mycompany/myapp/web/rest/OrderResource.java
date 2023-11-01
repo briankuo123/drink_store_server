@@ -2,17 +2,20 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Order;
 import com.mycompany.myapp.repository.OrderRepository;
+import com.mycompany.myapp.service.OrderService;
+import com.mycompany.myapp.service.dto.ConvertToOrderDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.util.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -36,8 +39,11 @@ public class OrderResource {
 
     private final OrderRepository orderRepository;
 
-    public OrderResource(OrderRepository orderRepository) {
+    private final OrderService orderService;
+
+    public OrderResource(OrderRepository orderRepository, OrderService orderService) {
         this.orderRepository = orderRepository;
+        this.orderService = orderService;
     }
 
     /**
@@ -208,5 +214,12 @@ public class OrderResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    //進行結帳動作
+    @PostMapping("/commitOrder")
+    public ResponseEntity commitOrder(@RequestBody ConvertToOrderDTO convertToOrderDTO) {
+        boolean response = orderService.commitOrder(convertToOrderDTO);
+        return new ResponseEntity(response, HttpStatus.OK);
     }
 }
