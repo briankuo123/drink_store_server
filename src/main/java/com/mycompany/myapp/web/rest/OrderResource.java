@@ -4,6 +4,8 @@ import com.mycompany.myapp.domain.Order;
 import com.mycompany.myapp.repository.OrderRepository;
 import com.mycompany.myapp.service.OrderService;
 import com.mycompany.myapp.service.dto.ConvertToOrderDTO;
+import com.mycompany.myapp.service.dto.DeleteOrderDTO;
+import com.mycompany.myapp.service.dto.UpdateOrderDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -214,6 +216,37 @@ public class OrderResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @PostMapping("/customerUpdateOrder")
+    public ResponseEntity customerUpdateOrder(@RequestBody UpdateOrderDTO updateOrderDTO) {
+        Order order = orderRepository.findByOrderId(updateOrderDTO.getOrderId());
+
+        if (order.getOrderStatus() == "處理中" && updateOrderDTO.getOrderDrinkListChanged()) {
+            return new ResponseEntity("訂單正在處理中，無法修改飲料項目。", HttpStatus.BAD_REQUEST);
+        }
+        if (order.getOrderStatus() == "處理完成待取餐") {
+            return new ResponseEntity("訂單已處裡完成，無法修改訂單。", HttpStatus.BAD_REQUEST);
+        }
+        if (order.getUserId() != updateOrderDTO.getUserId()) {
+            return new ResponseEntity("訂單修改錯誤，不正確的使用者。", HttpStatus.BAD_REQUEST);
+        }
+
+        orderService.customerUpdateOrder(updateOrderDTO, order);
+
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping("/custormerDeleteOrder")
+    public ResponseEntity customerDeleteOrder(@RequestBody DeleteOrderDTO deleteOrderDTO) {
+        Order order = orderRepository.findByOrderId(deleteOrderDTO.getOrderId());
+        if (order.getUserId() == deleteOrderDTO.getUserId()) {
+            return new ResponseEntity("訂單刪除錯誤，不正確的使用者", HttpStatus.BAD_REQUEST);
+        }
+
+        orderService.customerDeleteOrder(deleteOrderDTO);
+
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     //進行結帳動作

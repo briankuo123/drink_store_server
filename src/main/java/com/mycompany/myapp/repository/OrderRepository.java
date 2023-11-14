@@ -17,4 +17,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     public List<Order> findByUserId(UUID userID);
 
     public List<Order> findByDeliveryTimeBetween(Instant start, Instant end);
+
+    Order findByOrderId(UUID orderId);
+
+    void deleteByOrderId(UUID orderId);
 }

@@ -1,15 +1,16 @@
 package com.mycompany.myapp.service;
 
-import com.mycompany.myapp.domain.Order;
-import com.mycompany.myapp.domain.OrderDrink;
-import com.mycompany.myapp.domain.OrderRule;
-import com.mycompany.myapp.domain.ShoppingCart;
+import com.mycompany.myapp.domain.*;
 import com.mycompany.myapp.repository.*;
 import com.mycompany.myapp.service.dto.ConvertToOrderDTO;
+import com.mycompany.myapp.service.dto.DeleteOrderDTO;
+import com.mycompany.myapp.service.dto.UpdateOrderDTO;
 import java.time.*;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,8 @@ public class OrderService {
     private final OrderRuleRepository orderRuleRepository;
     private final MenuRepository menuRepository;
     private final UserInfoRepository userInfoRepository;
+    private final CouponRepository couponRepository;
+    private final CouponService couponService;
 
     public OrderService(
         ShoppingCartRepository shoppingCartRepository,
@@ -31,7 +34,9 @@ public class OrderService {
         OrderDrinkRepository orderDrinkRepository,
         OrderRuleRepository orderRuleRepository,
         MenuRepository menuRepository,
-        UserInfoRepository userInfoRepository
+        UserInfoRepository userInfoRepository,
+        CouponRepository couponRepository,
+        CouponService couponService
     ) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.orderRepository = orderRepository;
@@ -39,6 +44,8 @@ public class OrderService {
         this.orderRuleRepository = orderRuleRepository;
         this.menuRepository = menuRepository;
         this.userInfoRepository = userInfoRepository;
+        this.couponRepository = couponRepository;
+        this.couponService = couponService;
     }
 
     public boolean commitOrder(ConvertToOrderDTO convertToOrderDTO) {
@@ -108,6 +115,19 @@ public class OrderService {
 
     //檢查coupon的有效性
     public boolean checkCoupon(String couponCode) {
+        Coupon coupon = couponRepository.getCouponByCouponCode(couponCode);
+        Instant instantNow = Instant.now();
+
+        if (!(coupon.getCouponUseTimes() >= 1)) {
+            log.error("優惠碼使用次數不足");
+            return false;
+        }
+        if (!(instantNow.isAfter(coupon.getCouponExpireDatetime()))) {
+            log.error("優惠碼已過期");
+            return false;
+        }
+
+        couponService.useCoupon(couponCode);
         return true;
     }
 
@@ -131,7 +151,7 @@ public class OrderService {
         order.setTotalPrice(totalPrice(shoppingCartList));
         order.setDeliveryTime(convertToOrderDTO.getDeliveryTime());
         order.setOrderStatus("待處理");
-        order.setCoupon(convertToOrderDTO.getCoupon());
+        order.setCoupon(convertToOrderDTO.getCouponCode());
         order.setCreateBy(userName);
         order.setCreateDatetime(instantNow);
         order.setLastModifiedBy(userName);
@@ -159,5 +179,25 @@ public class OrderService {
         }
 
         return totalPrice;
+    }
+
+    public void customerUpdateOrder(UpdateOrderDTO updateOrderDTO, Order order) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        Instant instantNow = Instant.now();
+
+        order.setPayMethod(updateOrderDTO.getPayMethod());
+        order.setDeliveryLocation(updateOrderDTO.getDeliveryLocation());
+        order.setDeliveryTime(updateOrderDTO.getDeliveryTime());
+        order.setLastModifiedBy(auth.getName());
+        order.setLastModifiedDatetime(instantNow);
+        orderRepository.save(order);
+
+        orderDrinkRepository.deleteAllByOrderId(updateOrderDTO.getOrderId());
+        orderDrinkRepository.saveAll(updateOrderDTO.getOrderDrinkList());
+    }
+
+    public void customerDeleteOrder(DeleteOrderDTO deleteOrderDTO) {
+        orderRepository.deleteByOrderId(deleteOrderDTO.getOrderId());
+        orderDrinkRepository.deleteAllByOrderId(deleteOrderDTO.getOrderId());
     }
 }

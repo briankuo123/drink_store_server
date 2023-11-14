@@ -2,6 +2,8 @@ package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Coupon;
 import com.mycompany.myapp.repository.CouponRepository;
+import com.mycompany.myapp.service.CouponService;
+import com.mycompany.myapp.service.dto.CouponDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +38,11 @@ public class CouponResource {
     private String applicationName;
 
     private final CouponRepository couponRepository;
+    private final CouponService couponService;
 
-    public CouponResource(CouponRepository couponRepository) {
+    public CouponResource(CouponRepository couponRepository, CouponService couponService) {
         this.couponRepository = couponRepository;
+        this.couponService = couponService;
     }
 
     /**
@@ -201,5 +206,11 @@ public class CouponResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @PostMapping("/coupons/createCoupon")
+    public ResponseEntity createNewCoupon(@RequestBody CouponDTO couponDTO) {
+        couponService.createCoupon(couponDTO);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }
