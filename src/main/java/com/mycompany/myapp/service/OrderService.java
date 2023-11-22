@@ -2,10 +2,9 @@ package com.mycompany.myapp.service;
 
 import com.mycompany.myapp.domain.*;
 import com.mycompany.myapp.repository.*;
-import com.mycompany.myapp.service.dto.ConvertToOrderDTO;
-import com.mycompany.myapp.service.dto.DeleteOrderDTO;
-import com.mycompany.myapp.service.dto.UpdateOrderDTO;
+import com.mycompany.myapp.service.dto.*;
 import java.time.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -179,6 +178,50 @@ public class OrderService {
         }
 
         return totalPrice;
+    }
+
+    public List<ReadOrderResponseDTO> customerReadOrder(ReadOrderRequestDTO readOrderRequestDTO) {
+        List<ReadOrderResponseDTO> readOrderDTOList = new ArrayList<>();
+        List<Order> orderList = new ArrayList<>();
+        if (readOrderRequestDTO.getOrderStatus().isEmpty()) {
+            orderList = orderRepository.findByUserId(readOrderRequestDTO.getUserId());
+        } else {
+            orderList = orderRepository.findByUserIdAndOrderStatus(readOrderRequestDTO.getUserId(), readOrderRequestDTO.getOrderStatus());
+        }
+
+        for (Order o : orderList) {
+            ReadOrderResponseDTO readOrderDTO = new ReadOrderResponseDTO();
+            List<OrderDrink> orderDrinkList = orderDrinkRepository.findByOrderId(o.getOrderId());
+
+            readOrderDTO.setOrder(o);
+            readOrderDTO.setOrderDrinkList(orderDrinkList);
+
+            readOrderDTOList.add(readOrderDTO);
+        }
+
+        return readOrderDTOList;
+    }
+
+    public List<ReadOrderResponseDTO> adminReadOrder(ReadOrderRequestDTO readOrderRequestDTO) {
+        List<ReadOrderResponseDTO> readOrderDTOList = new ArrayList<>();
+        List<Order> orderList = new ArrayList<>();
+        if (readOrderRequestDTO.getOrderStatus().isEmpty()) {
+            orderList = orderRepository.findAll();
+        } else {
+            orderList = orderRepository.findByOrderStatus(readOrderRequestDTO.getOrderStatus());
+        }
+
+        for (Order o : orderList) {
+            ReadOrderResponseDTO readOrderDTO = new ReadOrderResponseDTO();
+            List<OrderDrink> orderDrinkList = orderDrinkRepository.findByOrderId(o.getOrderId());
+
+            readOrderDTO.setOrder(o);
+            readOrderDTO.setOrderDrinkList(orderDrinkList);
+
+            readOrderDTOList.add(readOrderDTO);
+        }
+
+        return readOrderDTOList;
     }
 
     public void customerUpdateOrder(UpdateOrderDTO updateOrderDTO, Order order) {

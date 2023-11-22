@@ -14,5 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface OrderDrinkRepository extends JpaRepository<OrderDrink, Long> {
     List<OrderDrink> getOrderDrinkByDrinkId(UUID drinkId);
 
+    List<OrderDrink> findByOrderId(UUID orderId);
+
     void deleteAllByOrderId(UUID orderId);
 }
