@@ -3,6 +3,7 @@ package com.mycompany.myapp.web.rest;
 import com.mycompany.myapp.domain.Coupon;
 import com.mycompany.myapp.repository.CouponRepository;
 import com.mycompany.myapp.service.CouponService;
+import com.mycompany.myapp.service.EmailService;
 import com.mycompany.myapp.service.dto.CouponDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -40,9 +41,12 @@ public class CouponResource {
     private final CouponRepository couponRepository;
     private final CouponService couponService;
 
-    public CouponResource(CouponRepository couponRepository, CouponService couponService) {
+    private final EmailService emailService;
+
+    public CouponResource(CouponRepository couponRepository, CouponService couponService, EmailService emailService) {
         this.couponRepository = couponRepository;
         this.couponService = couponService;
+        this.emailService = emailService;
     }
 
     /**
@@ -211,6 +215,12 @@ public class CouponResource {
     @PostMapping("/coupons/createCoupon")
     public ResponseEntity createNewCoupon(@RequestBody CouponDTO couponDTO) {
         couponService.createCoupon(couponDTO);
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping("/coupons/sendEmailTest")
+    public ResponseEntity sendEmailTest() {
+        emailService.sendEmail("brian.eh.kuo@gmail.com", "test", "this is body for test");
         return new ResponseEntity(HttpStatus.OK);
     }
 }
