@@ -178,7 +178,7 @@ public class MenuResource {
      *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of menus in body.
      */
-    @GetMapping("/menus")
+    @GetMapping("/getAllMenus")
     public List<Menu> getAllMenus() {
         log.debug("REST request to get all Menus");
         return menuRepository.findAll();
