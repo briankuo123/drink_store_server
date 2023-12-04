@@ -1,6 +1,7 @@
 package com.mycompany.myapp.repository;
 
 import com.mycompany.myapp.domain.UserInfo;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;

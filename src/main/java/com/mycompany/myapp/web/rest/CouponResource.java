@@ -1,7 +1,9 @@
 package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.domain.Coupon;
+import com.mycompany.myapp.domain.UserInfo;
 import com.mycompany.myapp.repository.CouponRepository;
+import com.mycompany.myapp.repository.UserInfoRepository;
 import com.mycompany.myapp.service.CouponService;
 import com.mycompany.myapp.service.EmailService;
 import com.mycompany.myapp.service.dto.CouponDTO;
@@ -11,6 +13,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -43,10 +46,18 @@ public class CouponResource {
 
     private final EmailService emailService;
 
-    public CouponResource(CouponRepository couponRepository, CouponService couponService, EmailService emailService) {
+    private final UserInfoRepository userInfoRepository;
+
+    public CouponResource(
+        CouponRepository couponRepository,
+        CouponService couponService,
+        EmailService emailService,
+        UserInfoRepository userInfoRepository
+    ) {
         this.couponRepository = couponRepository;
         this.couponService = couponService;
         this.emailService = emailService;
+        this.userInfoRepository = userInfoRepository;
     }
 
     /**
@@ -221,6 +232,17 @@ public class CouponResource {
     @GetMapping("/coupons/sendEmailTest")
     public ResponseEntity sendEmailTest() {
         emailService.sendEmail("brian.eh.kuo@gmail.com", "test", "this is body for test");
+        return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @PostMapping("/coupons/sendCouponEmail")
+    public ResponseEntity sendCouponEmail(@RequestBody UUID couponCode, String subject, String body) {
+        List<UserInfo> userInfoList = userInfoRepository.findAll();
+
+        for (UserInfo userInfo : userInfoList) {
+            emailService.sendEmail(userInfo.getEmail(), subject, couponCode.toString() + "\n" + body);
+        }
+
         return new ResponseEntity(HttpStatus.OK);
     }
 }
