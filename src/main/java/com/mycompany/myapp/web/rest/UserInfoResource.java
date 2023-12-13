@@ -1,7 +1,10 @@
 package com.mycompany.myapp.web.rest;
 
+import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.domain.UserInfo;
 import com.mycompany.myapp.repository.UserInfoRepository;
+import com.mycompany.myapp.repository.UserRepository;
+import com.mycompany.myapp.service.dto.UserDataDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +16,9 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -35,9 +40,11 @@ public class UserInfoResource {
     private String applicationName;
 
     private final UserInfoRepository userInfoRepository;
+    private final UserRepository userRepository;
 
-    public UserInfoResource(UserInfoRepository userInfoRepository) {
+    public UserInfoResource(UserInfoRepository userInfoRepository, UserRepository userRepository) {
         this.userInfoRepository = userInfoRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -198,5 +205,21 @@ public class UserInfoResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @GetMapping("/getUserInfo")
+    public ResponseEntity getUserInfo() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        User userdata = userRepository.getUserByLogin(username);
+        UserInfo userInfoData = userInfoRepository.getUserInfoByEmail(userdata.getEmail());
+        UserDataDTO userDataDTO = new UserDataDTO();
+
+        userDataDTO.setUserId(userInfoData.getUserId());
+        userDataDTO.setUserName(userInfoData.getUserName());
+        userDataDTO.setUserPhone(userInfoData.getPhoneNumber());
+        userDataDTO.setUserEmail(userInfoData.getEmail());
+        userDataDTO.setUserPassword(userdata.getPassword());
+
+        return new ResponseEntity(userDataDTO, HttpStatus.OK);
     }
 }

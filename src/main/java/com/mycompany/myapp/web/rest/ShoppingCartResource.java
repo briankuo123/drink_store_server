@@ -1,18 +1,20 @@
 package com.mycompany.myapp.web.rest;
 
+import com.mycompany.myapp.domain.Menu;
 import com.mycompany.myapp.domain.ShoppingCart;
+import com.mycompany.myapp.repository.MenuRepository;
 import com.mycompany.myapp.repository.ShoppingCartRepository;
+import com.mycompany.myapp.service.dto.ShoppingCartDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -35,9 +37,11 @@ public class ShoppingCartResource {
     private String applicationName;
 
     private final ShoppingCartRepository shoppingCartRepository;
+    private final MenuRepository menuRepository;
 
-    public ShoppingCartResource(ShoppingCartRepository shoppingCartRepository) {
+    public ShoppingCartResource(ShoppingCartRepository shoppingCartRepository, MenuRepository menuRepository) {
         this.shoppingCartRepository = shoppingCartRepository;
+        this.menuRepository = menuRepository;
     }
 
     /**
@@ -192,5 +196,24 @@ public class ShoppingCartResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @GetMapping("/getUserShoppingCart/{userId}")
+    public ResponseEntity getUserShoppingCart(@PathVariable UUID userId) {
+        List<ShoppingCart> shoppingCartList = shoppingCartRepository.findByUserId(userId);
+        List<ShoppingCartDTO> shoppingCartDTOList = new ArrayList<>();
+
+        for (ShoppingCart sc : shoppingCartList) {
+            Menu menu = menuRepository.findByDrinkId(sc.getDrinkId());
+            ShoppingCartDTO shoppingCartDTO = new ShoppingCartDTO();
+
+            shoppingCartDTO.setDrinkName(menu.getDrinkName());
+            shoppingCartDTO.setDrinkPrice(menu.getDrinkPrice());
+            shoppingCartDTO.setShoppingCart(sc);
+
+            shoppingCartDTOList.add(shoppingCartDTO);
+        }
+
+        return new ResponseEntity(shoppingCartDTOList, HttpStatus.OK);
     }
 }

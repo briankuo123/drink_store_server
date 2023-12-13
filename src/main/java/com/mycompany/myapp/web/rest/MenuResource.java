@@ -190,7 +190,7 @@ public class MenuResource {
      * @param id the id of the menu to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the menu, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/menus/{id}")
+    @GetMapping("/getMenu/{id}")
     public ResponseEntity<Menu> getMenu(@PathVariable Long id) {
         log.debug("REST request to get Menu : {}", id);
         Optional<Menu> menu = menuRepository.findById(id);

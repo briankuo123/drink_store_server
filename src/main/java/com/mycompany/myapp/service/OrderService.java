@@ -147,7 +147,7 @@ public class OrderService {
         order.setUserId(convertToOrderDTO.getUserId());
         order.setPayMethod(convertToOrderDTO.getPayMethod());
         order.setDeliveryLocation(convertToOrderDTO.getDeliveryLocation());
-        order.setTotalPrice(totalPrice(shoppingCartList));
+        order.setTotalPrice(totalPrice(shoppingCartList, convertToOrderDTO.getCouponCode()));
         order.setDeliveryTime(convertToOrderDTO.getDeliveryTime());
         order.setOrderStatus("待處理");
         order.setCoupon(convertToOrderDTO.getCouponCode());
@@ -170,11 +170,21 @@ public class OrderService {
         }
     }
 
-    public int totalPrice(List<ShoppingCart> shoppingCartList) {
+    public int totalPrice(List<ShoppingCart> shoppingCartList, String couponCode) {
         int totalPrice = 0;
         for (ShoppingCart sc : shoppingCartList) {
             int drinkPrice = menuRepository.findByDrinkId(sc.getDrinkId()).getDrinkPrice();
             totalPrice += drinkPrice;
+        }
+
+        if (!couponCode.isEmpty()) {
+            int couponValue = couponRepository.getCouponByCouponCode(couponCode).getCouponValue();
+
+            if (couponValue >= totalPrice) {
+                totalPrice = 0;
+            } else {
+                totalPrice -= couponValue;
+            }
         }
 
         return totalPrice;
