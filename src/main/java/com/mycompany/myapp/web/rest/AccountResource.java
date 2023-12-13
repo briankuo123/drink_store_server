@@ -5,9 +5,7 @@ import com.mycompany.myapp.repository.UserRepository;
 import com.mycompany.myapp.security.SecurityUtils;
 import com.mycompany.myapp.service.MailService;
 import com.mycompany.myapp.service.UserService;
-import com.mycompany.myapp.service.dto.AdminUserDTO;
-import com.mycompany.myapp.service.dto.PasswordChangeDTO;
-import com.mycompany.myapp.service.dto.RegisterUserDTO;
+import com.mycompany.myapp.service.dto.*;
 import com.mycompany.myapp.web.rest.errors.*;
 import com.mycompany.myapp.web.rest.vm.KeyAndPasswordVM;
 import com.mycompany.myapp.web.rest.vm.ManagedUserVM;
@@ -18,6 +16,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -41,11 +41,18 @@ public class AccountResource {
     private final UserService userService;
 
     private final MailService mailService;
+    private final PasswordEncoder passwordEncoder;
 
-    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService) {
+    public AccountResource(
+        UserRepository userRepository,
+        UserService userService,
+        MailService mailService,
+        PasswordEncoder passwordEncoder
+    ) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -191,5 +198,27 @@ public class AccountResource {
             password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
             password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
         );
+    }
+
+    @PostMapping("/updateUser")
+    public ResponseEntity updateUser(@RequestBody UpdateUserDTO updateUserDTO) {
+        User user = userRepository.getUserByLogin(updateUserDTO.getLogin());
+        if (!updateUserDTO.getNewLogin().isEmpty()) {
+            user.setLogin(updateUserDTO.getNewLogin());
+        }
+        if (updateUserDTO.getPasswordChanged()) {
+            if (user.getPassword() == passwordEncoder.encode(updateUserDTO.getPassword())) {
+                user.setPassword(passwordEncoder.encode(updateUserDTO.getNewPassword()));
+            } else {
+                return new ResponseEntity("origin password is wrong for password update", HttpStatus.BAD_REQUEST);
+            }
+        }
+        user.setFirstName(updateUserDTO.getName());
+        user.setLastName(updateUserDTO.getName());
+        user.setEmail(updateUserDTO.getEmail());
+
+        userRepository.save(user);
+
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

@@ -4,6 +4,7 @@ import com.mycompany.myapp.domain.User;
 import com.mycompany.myapp.domain.UserInfo;
 import com.mycompany.myapp.repository.UserInfoRepository;
 import com.mycompany.myapp.repository.UserRepository;
+import com.mycompany.myapp.service.dto.UpdateUserInfoDTO;
 import com.mycompany.myapp.service.dto.UserDataDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
@@ -221,5 +222,18 @@ public class UserInfoResource {
         userDataDTO.setUserPassword(userdata.getPassword());
 
         return new ResponseEntity(userDataDTO, HttpStatus.OK);
+    }
+
+    @PutMapping("/updateUserInfo")
+    public ResponseEntity updateUserInfoWithUserId(@RequestBody UpdateUserInfoDTO updateUserInfoDTO) {
+        UserInfo userInfo = userInfoRepository.findByUserId(updateUserInfoDTO.getUserId());
+
+        userInfo.setUserName(updateUserInfoDTO.getUserName());
+        userInfo.setEmail(updateUserInfoDTO.getEmail());
+        userInfo.setPhoneNumber(updateUserInfoDTO.getPhone());
+
+        userInfoRepository.save(userInfo);
+
+        return new ResponseEntity(HttpStatus.OK);
     }
 }
