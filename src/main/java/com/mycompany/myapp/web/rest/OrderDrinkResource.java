@@ -202,15 +202,9 @@ public class OrderDrinkResource {
     }
 
     //get all orders by userId
-    @GetMapping("/userOrders/{userId}")
-    public ResponseEntity getUserOrders(@PathVariable UUID userId) {
-        List<OrderDrink> response = new ArrayList<>();
-        List<Order> orders = orderRepository.findByUserId(userId);
-        for (Order o : orders) {
-            for (OrderDrink od : orderDrinkRepository.getOrderDrinkByDrinkId(o.getOrderId())) {
-                response.add(od);
-            }
-        }
+    @GetMapping("/userOrders/{orderId}")
+    public ResponseEntity getUserOrders(@PathVariable UUID orderId) {
+        List<OrderDrink> response = orderDrinkRepository.findByOrderId(orderId);
         return new ResponseEntity(response, HttpStatus.OK);
     }
 }
