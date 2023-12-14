@@ -60,7 +60,7 @@ public class OrderService {
             return "目前店家不開放訂餐";
         }
         //checkCoupon
-        if (convertToOrderDTO.getCouponCode().isEmpty() & !checkCoupon(convertToOrderDTO.getCouponCode())) {
+        if (convertToOrderDTO.getCouponCode().isEmpty() && !checkCoupon(convertToOrderDTO.getCouponCode())) {
             log.error("無效的優惠碼");
             return "無效的優惠碼";
         }
