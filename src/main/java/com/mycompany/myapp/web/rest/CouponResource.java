@@ -245,4 +245,9 @@ public class CouponResource {
 
         return new ResponseEntity(HttpStatus.OK);
     }
+
+    @GetMapping("/getCouponByCouponCode/{couponCode}")
+    public ResponseEntity getCouponByCouponCode(@PathVariable String couponCode) {
+        return new ResponseEntity(couponRepository.getCouponByCouponCode(couponCode), HttpStatus.OK);
+    }
 }

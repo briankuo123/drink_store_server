@@ -47,31 +47,31 @@ public class OrderService {
         this.couponService = couponService;
     }
 
-    public boolean commitOrder(ConvertToOrderDTO convertToOrderDTO) {
+    public String commitOrder(ConvertToOrderDTO convertToOrderDTO) {
         Instant instantNow = Instant.now();
         //檢查訂單frequency
         if (!checkOrderFrequency(instantNow)) {
             log.error("目前訂單數量眾多請稍後嘗試");
-            return false;
+            return "目前訂單數量眾多請稍後嘗試";
         }
         //checkOrderStatus
         if (!checkOrderStatus()) {
             log.error("目前店家不開放訂餐");
-            return false;
+            return "目前店家不開放訂餐";
         }
         //checkCoupon
-        if (!checkCoupon(convertToOrderDTO.getCouponCode())) {
+        if (convertToOrderDTO.getCouponCode().isEmpty() & !checkCoupon(convertToOrderDTO.getCouponCode())) {
             log.error("無效的優惠碼");
-            return false;
+            return "無效的優惠碼";
         }
         //checkDelivery
         if (!checkDelivery(convertToOrderDTO.getDeliveryLocation())) {
             log.error("無法提供服務的外送地址");
-            return false;
+            return "無法提供服務的外送地址";
         }
         //購物車轉換成訂單動作
         convertShoppingCartToOrder(convertToOrderDTO);
-        return true;
+        return "結帳成功";
     }
 
     public boolean checkOrderFrequency(Instant orderTime) {
@@ -121,7 +121,7 @@ public class OrderService {
             log.error("優惠碼使用次數不足");
             return false;
         }
-        if (!(instantNow.isAfter(coupon.getCouponExpireDatetime()))) {
+        if ((instantNow.isAfter(coupon.getCouponExpireDatetime()))) {
             log.error("優惠碼已過期");
             return false;
         }

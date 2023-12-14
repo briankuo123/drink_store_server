@@ -9,6 +9,7 @@ import com.mycompany.myapp.service.dto.*;
 import com.mycompany.myapp.web.rest.errors.*;
 import com.mycompany.myapp.web.rest.vm.KeyAndPasswordVM;
 import com.mycompany.myapp.web.rest.vm.ManagedUserVM;
+import java.time.Instant;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -207,7 +208,7 @@ public class AccountResource {
             user.setLogin(updateUserDTO.getNewLogin());
         }
         if (updateUserDTO.getPasswordChanged()) {
-            if (user.getPassword() == passwordEncoder.encode(updateUserDTO.getPassword())) {
+            if (passwordEncoder.matches(updateUserDTO.getPassword(), user.getPassword())) {
                 user.setPassword(passwordEncoder.encode(updateUserDTO.getNewPassword()));
             } else {
                 return new ResponseEntity("origin password is wrong for password update", HttpStatus.BAD_REQUEST);

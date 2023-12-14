@@ -272,7 +272,7 @@ public class OrderResource {
     //進行結帳動作
     @PostMapping("/commitOrder")
     public ResponseEntity commitOrder(@RequestBody ConvertToOrderDTO convertToOrderDTO) {
-        boolean response = orderService.commitOrder(convertToOrderDTO);
+        String response = orderService.commitOrder(convertToOrderDTO);
         return new ResponseEntity(response, HttpStatus.OK);
     }
 }
