@@ -60,7 +60,7 @@ public class OrderService {
             return "目前店家不開放訂餐";
         }
         //checkCoupon
-        if (convertToOrderDTO.getCouponCode().isEmpty() && !checkCoupon(convertToOrderDTO.getCouponCode())) {
+        if (!convertToOrderDTO.getCouponCode().isEmpty() && !checkCoupon(convertToOrderDTO.getCouponCode())) {
             log.error("無效的優惠碼");
             return "無效的優惠碼";
         }
@@ -122,6 +122,8 @@ public class OrderService {
             return false;
         }
         if ((instantNow.isAfter(coupon.getCouponExpireDatetime()))) {
+            log.debug(String.valueOf(instantNow));
+            log.debug(String.valueOf(coupon.getCouponExpireDatetime()));
             log.error("優惠碼已過期");
             return false;
         }
@@ -168,6 +170,9 @@ public class OrderService {
             orderDrink.setDrinkSize(sc.getDrinkSize());
             orderDrinkRepository.save(orderDrink);
         }
+
+        //delete shoppingCart
+        shoppingCartRepository.deleteAllByUserId(convertToOrderDTO.getUserId());
     }
 
     public int totalPrice(List<ShoppingCart> shoppingCartList, String couponCode) {
