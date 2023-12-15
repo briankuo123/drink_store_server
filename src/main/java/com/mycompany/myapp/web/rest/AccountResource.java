@@ -209,7 +209,7 @@ public class AccountResource {
         }
         if (updateUserDTO.getPasswordChanged()) {
             if (passwordEncoder.matches(updateUserDTO.getPassword(), user.getPassword())) {
-                user.setPassword(passwordEncoder.encode(updateUserDTO.getNewPassword()));
+                userService.changePassword(user, updateUserDTO.getNewPassword());
             } else {
                 return new ResponseEntity("origin password is wrong for password update", HttpStatus.BAD_REQUEST);
             }
@@ -221,5 +221,17 @@ public class AccountResource {
         userRepository.save(user);
 
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    @GetMapping("/password/{password}")
+    public ResponseEntity password(@PathVariable String password) {
+        User user = userRepository.getUserByLogin("eric_lin");
+
+        return new ResponseEntity(passwordEncoder.matches(password, user.getPassword()), HttpStatus.OK);
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity check() {
+        return new ResponseEntity(SecurityUtils.getCurrentUserLogin(), HttpStatus.OK);
     }
 }
